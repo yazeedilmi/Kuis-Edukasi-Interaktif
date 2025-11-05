@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'pages/home_page.dart';
 
 void main() {
@@ -28,27 +29,36 @@ class _QuizAppState extends State<QuizApp> {
       title: 'Kuis Edukasi Interaktif',
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,
+
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.deepPurple,
         brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white,
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.black),
-          bodyMedium: TextStyle(color: Colors.black),
+
+        textTheme: GoogleFonts.poppinsTextTheme(
+          const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black),
+            bodyMedium: TextStyle(color: Colors.black),
+          ),
         ),
       ),
+
       darkTheme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.deepPurple,
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF0F1419),
         cardColor: const Color(0xFF1A1F26),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white),
+
+        textTheme: GoogleFonts.poppinsTextTheme(
+          const TextTheme(
+            bodyLarge: TextStyle(color: Colors.white),
+            bodyMedium: TextStyle(color: Colors.white),
+          ),
         ),
       ),
+
       home: HomePage(onToggleTheme: toggleTheme),
     );
   }
