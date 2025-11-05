@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart'; // ✅ tambahkan ini di pubspec.yaml
+import 'package:share_plus/share_plus.dart';
 
 class ResultPage extends StatelessWidget {
   final String userName;
@@ -16,6 +16,32 @@ class ResultPage extends StatelessWidget {
     required this.userAnswers,
     required this.onToggleTheme,
   });
+
+  // Fungsi untuk mendapatkan pesan berdasarkan persentase
+  String _getCongratulatoryMessage(double percentage) {
+    if (percentage < 30) {
+      return 'Belajar Lagi Ya, $userName! 📚';
+    } else if (percentage < 50) {
+      return 'Kamu Lumayan Juga Ya, $userName! 👍';
+    } else if (percentage < 80) {
+      return 'Wow Kamu Hebat, $userName! 🌟';
+    } else {
+      return 'Wow Kamu Sangat Hebat, $userName!\nMama Kamu Pasti Bangga! 🏆';
+    }
+  }
+
+  // Fungsi untuk mendapatkan emoji berdasarkan persentase
+  String _getEmoji(double percentage) {
+    if (percentage < 30) {
+      return '📚';
+    } else if (percentage < 50) {
+      return '👍';
+    } else if (percentage < 80) {
+      return '🌟';
+    } else {
+      return '🏆';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +89,8 @@ class ResultPage extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Selamat, $userName! 🎉',
+                      _getCongratulatoryMessage(percentage),
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,

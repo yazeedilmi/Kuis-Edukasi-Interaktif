@@ -14,6 +14,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedQuestions = 10;
   String _selectedCategory = 'Umum';
   bool _isTimed = false;
+  int _timeLimit = 1; // menit default
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,6 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // Tombol Ganti Tema
                 Align(
                   alignment: Alignment.topRight,
                   child: IconButton(
@@ -41,10 +41,7 @@ class _HomePageState extends State<HomePage> {
                     onPressed: widget.onToggleTheme,
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Kartu Utama
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -60,22 +57,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Column(
                     children: [
-                      // Icon
                       Container(
                         padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.deepPurple,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.quiz_rounded,
-                          size: 50,
-                          color: Colors.white,
-                        ),
+                        child: const Icon(Icons.quiz_rounded, size: 50, color: Colors.white),
                       ),
                       const SizedBox(height: 20),
-
-                      // Title
                       Text(
                         'Kuis Edukasi Interaktif',
                         style: TextStyle(
@@ -85,19 +75,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-
-                      // Subtitle
                       Text(
                         'Uji pengetahuanmu dengan berbagai pertanyaan menarik dan tantangan waktu!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: subTextColor,
-                        ),
+                        style: TextStyle(fontSize: 14, color: subTextColor),
                       ),
                       const SizedBox(height: 30),
-
-                      // Input Nama
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -125,8 +108,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Tombol Mulai Kuis
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -135,9 +116,7 @@ class _HomePageState extends State<HomePage> {
                             final name = _nameController.text.trim();
                             if (name.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Mohon masukkan nama Anda'),
-                                ),
+                                const SnackBar(content: Text('Mohon masukkan nama Anda')),
                               );
                               return;
                             }
@@ -149,6 +128,7 @@ class _HomePageState extends State<HomePage> {
                                   totalQuestions: _selectedQuestions,
                                   category: _selectedCategory,
                                   isTimed: _isTimed,
+                                  timeLimit: _timeLimit, // ✅ tambahan
                                   onToggleTheme: widget.onToggleTheme,
                                 ),
                               ),
@@ -178,8 +158,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-
-                      // Opsi Pilihan
                       Row(
                         children: [
                           Expanded(
@@ -204,17 +182,53 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       const SizedBox(height: 12),
-
-                      // Timer Option
                       _buildOptionCard(
                         'Mode Waktu',
-                        _isTimed ? 'Terbatas' : 'Bebas',
+                        _isTimed ? 'Terbatas (${_timeLimit}m)' : 'Bebas',
                         isDark,
                         textColor,
-                            () {
-                          setState(() {
-                            _isTimed = !_isTimed;
-                          });
+                            () async {
+                          if (_isTimed) {
+                            setState(() => _isTimed = false);
+                          } else {
+                            final controller = TextEditingController();
+                            final result = await showDialog<int>(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text('Masukkan waktu (menit)'),
+                                  content: TextField(
+                                    controller: controller,
+                                    keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Contoh: 5',
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Batal'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        final value = int.tryParse(controller.text);
+                                        if (value != null && value > 0) {
+                                          Navigator.pop(context, value);
+                                        }
+                                      },
+                                      child: const Text('Simpan'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            if (result != null) {
+                              setState(() {
+                                _isTimed = true;
+                                _timeLimit = result;
+                              });
+                            }
+                          }
                         },
                       ),
                     ],
@@ -229,7 +243,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildOptionCard(
-      String label, String value, bool isDark, Color textColor, VoidCallback onTap) {
+      String label,
+      String value,
+      bool isDark,
+      Color textColor,
+      VoidCallback onTap,
+      ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -241,22 +260,16 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Column(
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600])),
             const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
+            Text(value,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: textColor)),
           ],
         ),
       ),
@@ -286,8 +299,8 @@ class _HomePageState extends State<HomePage> {
           'Pilih Kategori',
           ['Umum', 'Geografi', 'Sejarah', 'Sains', 'Teknologi'],
               (index) {
-            setState(() => _selectedCategory =
-            ['Umum', 'Geografi', 'Sejarah', 'Sains', 'Teknologi'][index]);
+            setState(() =>
+            _selectedCategory = ['Umum', 'Geografi', 'Sejarah', 'Sains', 'Teknologi'][index]);
           },
         );
       },
@@ -301,10 +314,9 @@ class _HomePageState extends State<HomePage> {
       child: Wrap(
         children: [
           Center(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            child: Text(title,
+                style:
+                const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           const Divider(),
           ...items.asMap().entries.map((entry) {
